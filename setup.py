@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 from setuptools import setup, find_packages
-from js_link import __version__
+from js_rss_articles import __version__
 
 
 setup(
-    name='js-link',
+    name='js-rss-articles',
     version=__version__,
     description=open('README.rst').read(),
     author='Compound Partners Ltd',

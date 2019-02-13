@@ -28,13 +28,17 @@ class RSSArticles(CMSPlugin):
     count = models.IntegerField(_('number of articles'))
     layout = models.CharField(_('layout'), max_length=30, choices=LAYOUT_CHOICES)
 
+    def save(self, *args, **kwargs):
+        super(RSSArticles, self).save(*args, **kwargs)
+        self.get_rss(reset=True)
+
     def __str__(self):
         return self.title or _('RSS Articles')
 
-    def get_rss(self):
+    def get_rss(self, reset=False):
         cache_key = 'rss-articles-%s' % self.pk
         rss = cache.get(cache_key)
-        if not rss:
+        if reset or not rss:
             rss = []
             if self.url:
                 doc = requests.get(self.url)
@@ -46,25 +50,27 @@ class RSSArticles(CMSPlugin):
                         try:
                             item = {}
                             parser = etree.HTMLParser()
-                            if not row.xpath('guid'):
-                                continue
-                            item['link'] = row.xpath('guid')[0].text
-                            if not row.xpath('title'):
-                                continue
-                            item['title'] = row.xpath('title')[0].text
-                            if not row.xpath('dc:date', namespaces=nsmap):
-                                continue
-                            item['date'] = parse(row.xpath('dc:date', namespaces=nsmap)[0].text, ignoretz=True)
-                            if not row.xpath('description'):
-                                continue
-                            html = etree.parse(StringIO(row.xpath('description')[0].text), parser)
-                            if not html.xpath('//img/@src'):
-                                continue
-                            item['image'] = str(html.xpath('//img/@src')[0])
-                            etree.strip_tags(html, '*')
-                            if not html.xpath('//html'):
-                                continue
-                            item['text'] = html.xpath('//html')[0].text.strip()
+                            if row.xpath('link'):
+                                item['link'] = row.xpath('link')[0].text
+                            elif row.xpath('guid'):
+                                item['link'] = row.xpath('guid')[0].text
+                            if row.xpath('title'):
+                                item['title'] = row.xpath('title')[0].text
+                            if row.xpath('pubDate'):
+                                item['date'] = parse(row.xpath('pubDate')[0].text, ignoretz=True)
+                            elif row.xpath('dc:date', namespaces=nsmap):
+                                item['date'] = parse(row.xpath('dc:date', namespaces=nsmap)[0].text, ignoretz=True)
+                            if row.xpath('author'):
+                                item['author'] = row.xpath('author')[0].text
+                            elif row.xpath('dc:creator', namespaces=nsmap):
+                                item['author'] = row.xpath('dc:creator', namespaces=nsmap)[0].text
+                            if row.xpath('description'):
+                                html = etree.parse(StringIO(row.xpath('description')[0].text), parser)
+                                if html.xpath('//img/@src'):
+                                    item['image'] = str(html.xpath('//img/@src')[0])
+                                etree.strip_tags(html, '*')
+                                if html.xpath('//html'):
+                                    item['text'] = html.xpath('//html')[0].text.strip()
                             rss.append(item)
                         except:
                             pass
