@@ -1,0 +1,27 @@
+{% load cms_tags %}
+
+<div class="related-articles rows-layout hrxchange">
+  {% if object.title %}
+    <h3>{{ object.title }}</h3>
+  {% endif %}
+  <ul>
+      {% for article in object.get_rss %}
+
+        {% if article.image %}
+          <li style="background-image:url({{ article.image }});">
+        {% else %}
+          <li>
+        {% endif %}
+
+
+        <a href="{{ article.link }}">
+
+          <h4>{{ article.title }}</h4>
+          {% if article.text %}
+            <p>{{ article.text|truncatechars:180 }}</p>
+          {% endif %}
+        </a>
+      </li>
+    {% endfor %}
+  </ul>
+</div>

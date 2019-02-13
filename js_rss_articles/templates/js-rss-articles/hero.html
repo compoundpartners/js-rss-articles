@@ -1,0 +1,47 @@
+{% load cms_tags %}
+
+<div class="related-articles one-plus-three">
+
+  {% if object.title %}
+    <h3>{{ object.title }}</h3>
+  {% endif %}
+
+  <ul class="row">
+
+    {% for article in object.get_rss|slice:":1" %}
+
+      {% if article.image %}
+        <li class="main-item" style="background-image:url({{ article.image }});">
+      {% else %}
+        <li class="main-item">
+      {% endif %}
+
+          <a href="{{ article.link }}">
+
+            <h4>{{ article.title }}</h4>
+
+            {% if article.text %}
+              <p>{{ article.text|truncatechars:180 }}</p>
+            {% endif %}
+
+          </a>
+      </li>
+
+    {% endfor %}
+
+    {% for article in object.get_rss|slice:"1:4" %}
+
+      <li>
+        <a href="{{ article.link }}">
+          <h4>{{ article.title }}</h4>
+
+            {% if article.text %}
+              <p>{{ article.text|truncatechars:180 }}</p>
+            {% endif %}
+        </a>
+      </li>
+
+    {% endfor %}
+
+  </ul>
+</div>

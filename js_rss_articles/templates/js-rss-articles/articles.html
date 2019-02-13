@@ -1,0 +1,34 @@
+{% load cms_tags %}
+
+<div class="related-articles two-by-two">
+
+  {% if object.title %}
+    <h3>{{ object.title }}</h3>
+  {% endif %}
+
+
+  <ul class="row">
+
+    {% for article in object.get_rss %}
+
+      {% if article.image %}
+        <li class="col-md-6" style="background-image:url({{ a.image }});">
+      {% else %}
+        <li class="col-md-6">
+      {% endif %}
+
+          <a href="{{ article.link }}">
+            <h4>{{ article.title }}</h4>
+
+            {% if article.text %}
+              <p>{{ article.text|truncatechars:180 }}</p>
+            {% endif %}
+          </a>
+
+        </li>
+
+    {% endfor %}
+
+  </ul>
+
+</div>

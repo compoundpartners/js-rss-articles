@@ -1,0 +1,6 @@
+{
+    "package-name": "js-rss-articles",
+    "installed-apps": [
+        "js_rss_articles"
+    ]
+}
